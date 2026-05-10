@@ -5,6 +5,9 @@ MODE="${1:-run}"
 APP_NAME="HotkeyLauncher"
 BUNDLE_ID="com.zjy.hotkeylauncher"
 MIN_SYSTEM_VERSION="14.0"
+VERSION="${HOTKEYLAUNCHER_VERSION:-$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')}"
+VERSION="${VERSION:-0.0.0}"
+BUILD_NUMBER="${HOTKEYLAUNCHER_BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
@@ -46,9 +49,9 @@ cat >"$INFO_PLIST" <<PLIST
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0</string>
+  <string>$VERSION</string>
   <key>CFBundleVersion</key>
-  <string>1</string>
+  <string>$BUILD_NUMBER</string>
   <key>LSMinimumSystemVersion</key>
   <string>$MIN_SYSTEM_VERSION</string>
   <key>NSHighResolutionCapable</key>

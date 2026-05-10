@@ -25,6 +25,8 @@ jobs:
           APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
           APP_CONTENTS="$APP_BUNDLE/Contents"
           APP_MACOS="$APP_CONTENTS/MacOS"
+          VERSION="${GITHUB_REF_NAME#v}"
+          BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
 
           BUILD_BINARY="$(swift build -c release --show-bin-path)/$APP_NAME"
 
@@ -33,7 +35,7 @@ jobs:
           cp "$BUILD_BINARY" "$APP_MACOS/$APP_NAME"
           chmod +x "$APP_MACOS/$APP_NAME"
 
-          cat >"$APP_CONTENTS/Info.plist" <<'PLIST'
+          cat >"$APP_CONTENTS/Info.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -53,9 +55,9 @@ jobs:
             <key>CFBundlePackageType</key>
             <string>APPL</string>
             <key>CFBundleShortVersionString</key>
-            <string>1.0</string>
+            <string>${VERSION}</string>
             <key>CFBundleVersion</key>
-            <string>1</string>
+            <string>${BUILD_NUMBER}</string>
             <key>LSMinimumSystemVersion</key>
             <string>14.0</string>
             <key>NSHighResolutionCapable</key>
@@ -81,7 +83,24 @@ jobs:
             -format UDZO \
             "$DMG_NAME"
 
+      - name: Write update metadata
+        run: |
+          APP_NAME="HotkeyLauncher"
+          VERSION="${GITHUB_REF_NAME#v}"
+          DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+          cat > latest.json <<JSON
+          {
+            "version": "$VERSION",
+            "tagName": "$GITHUB_REF_NAME",
+            "releaseURL": "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}",
+            "downloadURL": "https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/${DMG_NAME}",
+            "publishedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          }
+          JSON
+
       - name: Upload DMG to Release
         uses: softprops/action-gh-release@v2
         with:
-          files: "*.dmg"
+          files: |
+            "*.dmg"
+            latest.json

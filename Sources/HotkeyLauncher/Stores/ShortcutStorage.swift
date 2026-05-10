@@ -59,6 +59,28 @@ struct ShortcutStorage {
         try data.write(to: settingsURL, options: .atomic)
     }
 
+    func exportConfiguration(shortcuts: [HotkeyShortcut], settings: AppSettings, to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let configuration = ExportedConfiguration(settings: settings, shortcuts: shortcuts)
+        let data = try encoder.encode(configuration)
+        try data.write(to: url, options: .atomic)
+    }
+
+    func importConfiguration(from url: URL) throws -> ExportedConfiguration {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        do {
+            return try decoder.decode(ExportedConfiguration.self, from: data)
+        } catch {
+            let shortcuts = try JSONDecoder().decode([HotkeyShortcut].self, from: data)
+            return ExportedConfiguration(settings: .default, shortcuts: shortcuts)
+        }
+    }
+
     private func createSupportDirectory() throws {
         try FileManager.default.createDirectory(
             at: shortcutsURL.deletingLastPathComponent(),

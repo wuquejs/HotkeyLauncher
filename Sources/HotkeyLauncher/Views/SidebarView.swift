@@ -35,6 +35,40 @@ struct SidebarView: View {
                 Spacer()
             }
             .padding(10)
+
+            Divider()
+
+            HStack(spacing: 8) {
+                Button {
+                    store.importConfiguration()
+                } label: {
+                    Label("Import", systemImage: "square.and.arrow.down")
+                }
+
+                Button {
+                    store.exportConfiguration()
+                } label: {
+                    Label("Export", systemImage: "square.and.arrow.up")
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+
+            Divider()
+
+            AboutUpdateView(
+                latestUpdate: store.latestUpdate,
+                isCheckingForUpdates: store.isCheckingForUpdates,
+                isDownloadingUpdate: store.isDownloadingUpdate,
+                onCheckForUpdates: {
+                    store.checkForUpdates()
+                },
+                onDownloadUpdate: {
+                    store.downloadLatestUpdate()
+                }
+            )
         }
     }
 }

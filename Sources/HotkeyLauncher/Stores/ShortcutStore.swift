@@ -11,6 +11,9 @@ final class ShortcutStore: ObservableObject {
     @Published var launchAtLogin: Bool
     @Published var opensNewWindowWhenNoVisibleWindows: Bool
     @Published var alert: AlertItem?
+    @Published var latestUpdate: UpdateInfo?
+    @Published var isCheckingForUpdates = false
+    @Published var isDownloadingUpdate = false
 
     private let storage: ShortcutStorage
     private var hotKeyCenter: GlobalHotKeyCenter?
@@ -181,6 +184,119 @@ final class ShortcutStore: ObservableObject {
         }
     }
 
+    func exportConfiguration() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        panel.nameFieldStringValue = "HotkeyLauncher-Config.json"
+        panel.canCreateDirectories = true
+
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+
+        do {
+            try storage.exportConfiguration(
+                shortcuts: shortcuts,
+                settings: currentSettings,
+                to: url
+            )
+            alert = AlertItem(title: "Export Complete", message: "Configuration exported to \(url.path).")
+        } catch {
+            alert = AlertItem(title: "Export Failed", message: error.localizedDescription)
+        }
+    }
+
+    func importConfiguration() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+
+        do {
+            let configuration = try storage.importConfiguration(from: url)
+            shortcuts = configuration.shortcuts
+            opensNewWindowWhenNoVisibleWindows = configuration.settings.opensNewWindowWhenNoVisibleWindows
+            selectedID = shortcuts.first?.id
+            persist()
+            persistSettings()
+            refreshRegistrations()
+            alert = AlertItem(title: "Import Complete", message: "Imported \(shortcuts.count) shortcuts.")
+        } catch {
+            alert = AlertItem(title: "Import Failed", message: error.localizedDescription)
+        }
+    }
+
+    func checkForUpdates() {
+        guard !isCheckingForUpdates else {
+            return
+        }
+
+        isCheckingForUpdates = true
+
+        Task {
+            do {
+                let update = try await UpdateChecker.latestUpdate()
+                await MainActor.run {
+                    self.isCheckingForUpdates = false
+                    self.latestUpdate = update
+
+                    if AppVersion.compare(AppVersion.current, update.displayVersion) == .orderedAscending {
+                        self.alert = AlertItem(
+                            title: "Update Available",
+                            message: "Version \(update.displayVersion) is available. Use Download Update to open the GitHub release."
+                        )
+                    } else {
+                        self.alert = AlertItem(
+                            title: "Up to Date",
+                            message: "HotkeyLauncher \(AppVersion.current) is the latest version."
+                        )
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    self.isCheckingForUpdates = false
+                    self.alert = AlertItem(title: "Update Check Failed", message: error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    func downloadLatestUpdate() {
+        guard let latestUpdate else {
+            checkForUpdates()
+            return
+        }
+
+        guard !isDownloadingUpdate else {
+            return
+        }
+
+        isDownloadingUpdate = true
+
+        Task {
+            do {
+                try await UpdateChecker.downloadAndOpen(latestUpdate)
+                await MainActor.run {
+                    self.isDownloadingUpdate = false
+                }
+            } catch {
+                await MainActor.run {
+                    self.isDownloadingUpdate = false
+                    UpdateChecker.openRelease(latestUpdate)
+                    self.alert = AlertItem(
+                        title: "Download Failed",
+                        message: "Opened the GitHub release page instead. \(error.localizedDescription)"
+                    )
+                }
+            }
+        }
+    }
+
     func setRecordingActive(_ active: Bool) {
         registrationsSuspended = active
         if active {
@@ -247,11 +363,13 @@ final class ShortcutStore: ObservableObject {
 
     private func persistSettings() {
         do {
-            try storage.saveSettings(
-                AppSettings(opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows)
-            )
+            try storage.saveSettings(currentSettings)
         } catch {
             alert = AlertItem(title: "Save Failed", message: error.localizedDescription)
         }
+    }
+
+    private var currentSettings: AppSettings {
+        AppSettings(opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows)
     }
 }
