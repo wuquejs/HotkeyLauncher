@@ -9,6 +9,7 @@ final class ShortcutStore: ObservableObject {
     @Published private(set) var statuses: [UUID: ShortcutStatus] = [:]
     @Published var selectedID: UUID?
     @Published var launchAtLogin: Bool
+    @Published var opensNewWindowWhenNoVisibleWindows: Bool
     @Published var alert: AlertItem?
 
     private let storage: ShortcutStorage
@@ -25,6 +26,7 @@ final class ShortcutStore: ObservableObject {
         self.shortcuts = initialShortcuts
         self.selectedID = initialShortcuts.first?.id
         self.launchAtLogin = LoginItemInstaller.isEnabled(bundleURL: Bundle.main.bundleURL)
+        self.opensNewWindowWhenNoVisibleWindows = storage.loadSettings().opensNewWindowWhenNoVisibleWindows
     }
 
     func start() {
@@ -147,7 +149,10 @@ final class ShortcutStore: ObservableObject {
         }
 
         AppLog.write("open \(shortcut.name)")
-        ApplicationLauncher.open(shortcut) { [weak self] errorMessage in
+        ApplicationLauncher.open(
+            shortcut,
+            opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows
+        ) { [weak self] errorMessage in
             guard let errorMessage else {
                 return
             }
@@ -159,6 +164,11 @@ final class ShortcutStore: ObservableObject {
                 )
             }
         }
+    }
+
+    func setOpensNewWindowWhenNoVisibleWindows(_ enabled: Bool) {
+        opensNewWindowWhenNoVisibleWindows = enabled
+        persistSettings()
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {
@@ -230,6 +240,16 @@ final class ShortcutStore: ObservableObject {
     private func persist() {
         do {
             try storage.save(shortcuts)
+        } catch {
+            alert = AlertItem(title: "Save Failed", message: error.localizedDescription)
+        }
+    }
+
+    private func persistSettings() {
+        do {
+            try storage.saveSettings(
+                AppSettings(opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows)
+            )
         } catch {
             alert = AlertItem(title: "Save Failed", message: error.localizedDescription)
         }

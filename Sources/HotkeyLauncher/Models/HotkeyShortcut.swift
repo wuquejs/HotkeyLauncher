@@ -25,6 +25,25 @@ struct HotkeyShortcut: Codable, Identifiable, Equatable, Sendable {
         self.isEnabled = isEnabled
     }
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case appPath
+        case bundleIdentifier
+        case hotkey
+        case isEnabled
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.appPath = try container.decode(String.self, forKey: .appPath)
+        self.bundleIdentifier = try container.decodeIfPresent(String.self, forKey: .bundleIdentifier)
+        self.hotkey = try container.decode(HotkeyCombination.self, forKey: .hotkey)
+        self.isEnabled = try container.decode(Bool.self, forKey: .isEnabled)
+    }
+
     static func defaultShortcuts() -> [HotkeyShortcut] {
         [
             HotkeyShortcut(

@@ -17,6 +17,10 @@ struct ContentView: View {
                         get: { store.launchAtLogin },
                         set: { store.setLaunchAtLogin($0) }
                     ),
+                    opensNewWindowWhenNoVisibleWindows: Binding(
+                        get: { store.opensNewWindowWhenNoVisibleWindows },
+                        set: { store.setOpensNewWindowWhenNoVisibleWindows($0) }
+                    ),
                     onChooseApplication: {
                         store.chooseApplication(for: shortcut.id)
                     },
