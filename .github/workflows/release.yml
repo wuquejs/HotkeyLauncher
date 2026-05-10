@@ -102,5 +102,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            "*.dmg"
+            *.dmg
             latest.json
