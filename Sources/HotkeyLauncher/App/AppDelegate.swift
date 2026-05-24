@@ -61,6 +61,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         window.title = "Hotkey Launcher"
         window.minSize = NSSize(width: 700, height: 400)
+        window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(rootView: content)
         window.setFrameAutosaveName("HotkeyLauncherMainWindow")
         window.setFrame(NSRect(x: 0, y: 0, width: 900, height: 560), display: true)
