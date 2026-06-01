@@ -5,13 +5,18 @@ struct SidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            List(selection: $store.selectedID) {
+            List {
                 ForEach(store.shortcuts) { shortcut in
-                    ShortcutRowView(
-                        shortcut: shortcut,
-                        status: store.status(for: shortcut.id)
-                    )
-                    .tag(shortcut.id)
+                    Button {
+                        store.selectShortcut(id: shortcut.id)
+                    } label: {
+                        ShortcutRowView(
+                            shortcut: shortcut,
+                            status: store.status(for: shortcut.id)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(selectionBackground(for: shortcut.id))
                 }
             }
             .listStyle(.sidebar)
@@ -38,37 +43,24 @@ struct SidebarView: View {
 
             Divider()
 
-            HStack(spacing: 8) {
-                Button {
-                    store.importConfiguration()
-                } label: {
-                    Label("Import", systemImage: "square.and.arrow.down")
-                }
-
-                Button {
-                    store.exportConfiguration()
-                } label: {
-                    Label("Export", systemImage: "square.and.arrow.up")
-                }
-
-                Spacer()
+            Button {
+                store.showSettings()
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .buttonStyle(.plain)
+            .padding(10)
+            .background(store.isShowingSettings ? Color.accentColor.opacity(0.16) : Color.clear)
+        }
+    }
 
-            Divider()
-
-            AboutUpdateView(
-                latestUpdate: store.latestUpdate,
-                isCheckingForUpdates: store.isCheckingForUpdates,
-                isDownloadingUpdate: store.isDownloadingUpdate,
-                onCheckForUpdates: {
-                    store.checkForUpdates()
-                },
-                onDownloadUpdate: {
-                    store.downloadLatestUpdate()
-                }
-            )
+    @ViewBuilder
+    private func selectionBackground(for shortcutID: UUID) -> some View {
+        if store.selectedID == shortcutID && !store.isShowingSettings {
+            Color.accentColor.opacity(0.16)
+        } else {
+            Color.clear
         }
     }
 }

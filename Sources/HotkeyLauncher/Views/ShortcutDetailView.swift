@@ -4,8 +4,6 @@ struct ShortcutDetailView: View {
     @Binding var shortcut: HotkeyShortcut
 
     let status: ShortcutStatus
-    @Binding var launchAtLogin: Bool
-    @Binding var opensNewWindowWhenNoVisibleWindows: Bool
     let onChooseApplication: () -> Void
     let onOpen: () -> Void
     let onRecordingChanged: (Bool) -> Void
@@ -60,28 +58,6 @@ struct ShortcutDetailView: View {
 
                             StatusBadge(status: status)
                         }
-                    }
-
-                    GridRow {
-                        Text("Startup")
-                            .foregroundStyle(.secondary)
-                        Toggle("Launch at Login", isOn: $launchAtLogin)
-                            .toggleStyle(.switch)
-                    }
-
-                    GridRow {
-                        Text("Windows")
-                            .foregroundStyle(.secondary)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Toggle("New window when none are visible", isOn: $opensNewWindowWhenNoVisibleWindows)
-                                .toggleStyle(.switch)
-
-                            Text("Applies to all shortcuts. When the app is already running with no visible windows, Hotkey Launcher activates it and sends Command+N.")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: 420, alignment: .leading)
                     }
                 }
                 .gridColumnAlignment(.leading)
