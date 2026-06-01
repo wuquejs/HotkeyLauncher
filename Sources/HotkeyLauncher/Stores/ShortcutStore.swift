@@ -8,6 +8,7 @@ final class ShortcutStore: ObservableObject {
     @Published private(set) var shortcuts: [HotkeyShortcut]
     @Published private(set) var statuses: [UUID: ShortcutStatus] = [:]
     @Published var selectedID: UUID?
+    @Published var isShowingSettings = false
     @Published var launchAtLogin: Bool
     @Published var opensNewWindowWhenNoVisibleWindows: Bool
     @Published var alert: AlertItem?
@@ -50,10 +51,23 @@ final class ShortcutStore: ObservableObject {
     }
 
     var selectedShortcut: HotkeyShortcut? {
+        guard !isShowingSettings else {
+            return nil
+        }
+
         guard let selectedID else {
             return nil
         }
         return shortcuts.first(where: { $0.id == selectedID })
+    }
+
+    func selectShortcut(id: UUID) {
+        selectedID = id
+        isShowingSettings = false
+    }
+
+    func showSettings() {
+        isShowingSettings = true
     }
 
     func shortcut(id: UUID) -> HotkeyShortcut? {
@@ -135,6 +149,7 @@ final class ShortcutStore: ObservableObject {
 
         shortcuts.append(shortcut)
         selectedID = shortcut.id
+        isShowingSettings = false
         persist()
         refreshRegistrations()
     }
