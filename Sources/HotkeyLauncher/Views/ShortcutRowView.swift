@@ -21,7 +21,10 @@ struct ShortcutRowView: View {
             Spacer(minLength: 8)
 
             StatusDot(status: status)
+                .allowsHitTesting(false)
         }
         .padding(.vertical, 3)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
