@@ -12,10 +12,6 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: hotkeylauncher-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   APP_NAME: HotkeyLauncher
   BUNDLE_ID: com.zjy.hotkeylauncher
