@@ -4,9 +4,9 @@ import AppKit
 struct HotkeyLauncherMain {
     @MainActor
     static func main() {
-        let app = NSApplication.shared
+        let application = NSApplication.shared
         let appDelegate = AppDelegate()
-        app.delegate = appDelegate
-        app.run()
+        application.delegate = appDelegate
+        application.run()
     }
 }
