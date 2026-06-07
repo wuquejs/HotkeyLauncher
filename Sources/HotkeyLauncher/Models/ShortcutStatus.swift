@@ -11,34 +11,34 @@ enum ShortcutStatus: Equatable {
     var title: String {
         switch self {
         case .registered:
-            "Active"
+            return "Active"
         case .disabled:
-            "Disabled"
+            return "Disabled"
         case .missingApplication:
-            "Missing app"
+            return "Missing app"
         case .duplicate:
-            "Duplicate"
+            return "Duplicate"
         case .conflict:
-            "Conflict"
+            return "Conflict"
         case .error:
-            "Error"
+            return "Error"
         }
     }
 
     var detail: String {
         switch self {
         case .registered:
-            "Registered and listening"
+            return "Registered and listening"
         case .disabled:
-            "Shortcut is disabled"
+            return "Shortcut is disabled"
         case .missingApplication:
-            "Application path does not exist"
+            return "Application path does not exist"
         case .duplicate:
-            "Another enabled shortcut uses the same keys"
+            return "Another enabled shortcut uses the same keys"
         case .conflict(let code):
-            "macOS rejected this hotkey, status \(code)"
+            return "macOS rejected this hotkey, status \(code)"
         case .error(let code):
-            "Registration failed, status \(code)"
+            return "Registration failed, status \(code)"
         }
     }
 }

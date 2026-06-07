@@ -13,18 +13,14 @@ struct ShortcutDetailView: View {
             VStack(alignment: .leading, spacing: 22) {
                 header
 
-                Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 16) {
-                    GridRow {
-                        Text("Name")
-                            .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 16) {
+                    detailRow("Name") {
                         TextField("Name", text: $shortcut.name)
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: 360)
                     }
 
-                    GridRow {
-                        Text("Application")
-                            .foregroundStyle(.secondary)
+                    detailRow("Application") {
                         HStack(spacing: 10) {
                             Text(shortcut.appPath)
                                 .font(.callout)
@@ -40,18 +36,14 @@ struct ShortcutDetailView: View {
                         }
                     }
 
-                    GridRow {
-                        Text("Hotkey")
-                            .foregroundStyle(.secondary)
+                    detailRow("Hotkey") {
                         HotkeyRecorderButton(
                             combination: $shortcut.hotkey,
                             onRecordingChanged: onRecordingChanged
                         )
                     }
 
-                    GridRow {
-                        Text("State")
-                            .foregroundStyle(.secondary)
+                    detailRow("State") {
                         HStack(spacing: 12) {
                             Toggle("Enabled", isOn: $shortcut.isEnabled)
                                 .toggleStyle(.switch)
@@ -60,7 +52,6 @@ struct ShortcutDetailView: View {
                         }
                     }
                 }
-                .gridColumnAlignment(.leading)
 
                 Divider()
 
@@ -100,6 +91,20 @@ struct ShortcutDetailView: View {
             }
 
             Spacer()
+        }
+    }
+
+    private func detailRow<Content: View>(
+        _ title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 16) {
+            Text(title)
+                .foregroundStyle(.secondary)
+                .frame(width: 90, alignment: .leading)
+
+            content()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

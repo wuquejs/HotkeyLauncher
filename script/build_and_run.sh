@@ -4,7 +4,7 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="HotkeyLauncher"
 BUNDLE_ID="com.zjy.hotkeylauncher"
-MIN_SYSTEM_VERSION="14.0"
+MIN_SYSTEM_VERSION="12.0"
 VERSION="${HOTKEYLAUNCHER_VERSION:-$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')}"
 VERSION="${VERSION:-0.0.0}"
 BUILD_NUMBER="${HOTKEYLAUNCHER_BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}"

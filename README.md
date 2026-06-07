@@ -2,6 +2,8 @@
 
 Native macOS hotkey launcher built with SwiftUI, AppKit, and Carbon global hotkeys.
 
+Requires macOS 12 or later. Building from source requires Swift 5.7 or later.
+
 ![demo](./hotkey-launcher.png)
 
 ## Build and Run

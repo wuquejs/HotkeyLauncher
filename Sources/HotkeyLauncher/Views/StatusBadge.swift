@@ -15,30 +15,30 @@ struct StatusBadge: View {
     private var symbolName: String {
         switch status {
         case .registered:
-            "checkmark.circle.fill"
+            return "checkmark.circle.fill"
         case .disabled:
-            "pause.circle"
+            return "pause.circle"
         case .missingApplication:
-            "questionmark.app"
+            return "questionmark.app"
         case .duplicate:
-            "square.on.square"
+            return "square.on.square"
         case .conflict:
-            "exclamationmark.triangle.fill"
+            return "exclamationmark.triangle.fill"
         case .error:
-            "xmark.octagon.fill"
+            return "xmark.octagon.fill"
         }
     }
 
     private var tint: Color {
         switch status {
         case .registered:
-            .green
+            return .green
         case .disabled:
-            .secondary
+            return .secondary
         case .missingApplication:
-            .orange
+            return .orange
         case .duplicate, .conflict, .error:
-            .red
+            return .red
         }
     }
 }
@@ -56,13 +56,13 @@ struct StatusDot: View {
     private var tint: Color {
         switch status {
         case .registered:
-            .green
+            return .green
         case .disabled:
-            .secondary
+            return .secondary
         case .missingApplication:
-            .orange
+            return .orange
         case .duplicate, .conflict, .error:
-            .red
+            return .red
         }
     }
 }

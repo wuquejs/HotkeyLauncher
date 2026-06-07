@@ -2,11 +2,9 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @EnvironmentObject private var store: ShortcutStore
-    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Button("Open Hotkey Launcher") {
-            openWindow(id: "main")
             WindowActivator.activateSoon()
         }
 

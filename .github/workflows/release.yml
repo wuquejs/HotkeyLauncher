@@ -1,43 +1,67 @@
 name: Build & Release DMG
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - main
+      - master
     tags:
       - "v*"
 
 permissions:
   contents: write
 
+env:
+  APP_NAME: HotkeyLauncher
+  BUNDLE_ID: com.zjy.hotkeylauncher
+  MIN_SYSTEM_VERSION: "12.0"
+
 jobs:
   build:
     runs-on: macos-15
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Show toolchain
+        run: |
+          sw_vers
+          xcodebuild -version
+          swift --version
+
       - name: Build release binary
-        run: swift build -c release
+        run: swift build -c release --arch arm64 --arch x86_64
 
       - name: Assemble .app bundle
         run: |
-          APP_NAME="HotkeyLauncher"
-          BUNDLE_ID="com.zjy.hotkeylauncher"
+          set -euo pipefail
+
           DIST_DIR="dist"
           APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
           APP_CONTENTS="$APP_BUNDLE/Contents"
           APP_MACOS="$APP_CONTENTS/MacOS"
           APP_RESOURCES="$APP_CONTENTS/Resources"
-          VERSION="${GITHUB_REF_NAME#v}"
-          BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
+          APP_BINARY="$APP_MACOS/$APP_NAME"
+          INFO_PLIST="$APP_CONTENTS/Info.plist"
 
-          BUILD_BINARY="$(swift build -c release --show-bin-path)/$APP_NAME"
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="0.0.${GITHUB_RUN_NUMBER}"
+          fi
+          BUILD_NUMBER="${GITHUB_RUN_NUMBER}"
+          BUILD_BINARY="$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/$APP_NAME"
+
+          test -x "$BUILD_BINARY"
 
           rm -rf "$APP_BUNDLE"
           mkdir -p "$APP_MACOS" "$APP_RESOURCES"
-          cp "$BUILD_BINARY" "$APP_MACOS/$APP_NAME"
+          cp "$BUILD_BINARY" "$APP_BINARY"
           cp "HotkeyLauncher.icns" "$APP_RESOURCES/HotkeyLauncher.icns"
-          chmod +x "$APP_MACOS/$APP_NAME"
+          chmod +x "$APP_BINARY"
 
-          cat >"$APP_CONTENTS/Info.plist" <<PLIST
+          cat >"$INFO_PLIST" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -45,13 +69,13 @@ jobs:
             <key>CFBundleDevelopmentRegion</key>
             <string>en</string>
             <key>CFBundleExecutable</key>
-            <string>HotkeyLauncher</string>
+            <string>$APP_NAME</string>
             <key>CFBundleIdentifier</key>
-            <string>com.zjy.hotkeylauncher</string>
+            <string>$BUNDLE_ID</string>
             <key>CFBundleInfoDictionaryVersion</key>
             <string>6.0</string>
             <key>CFBundleName</key>
-            <string>HotkeyLauncher</string>
+            <string>$APP_NAME</string>
             <key>CFBundleDisplayName</key>
             <string>Hotkey Launcher</string>
             <key>CFBundleIconFile</key>
@@ -59,11 +83,11 @@ jobs:
             <key>CFBundlePackageType</key>
             <string>APPL</string>
             <key>CFBundleShortVersionString</key>
-            <string>${VERSION}</string>
+            <string>$VERSION</string>
             <key>CFBundleVersion</key>
-            <string>${BUILD_NUMBER}</string>
+            <string>$BUILD_NUMBER</string>
             <key>LSMinimumSystemVersion</key>
-            <string>14.0</string>
+            <string>$MIN_SYSTEM_VERSION</string>
             <key>NSHighResolutionCapable</key>
             <true/>
             <key>NSPrincipalClass</key>
@@ -72,18 +96,33 @@ jobs:
           </plist>
           PLIST
 
-          codesign --force --deep --sign - "$APP_BUNDLE" || true
+          plutil -lint "$INFO_PLIST"
+          codesign --force --deep --sign - "$APP_BUNDLE"
+
+          echo "APP_BUNDLE=$APP_BUNDLE" >>"$GITHUB_ENV"
+          echo "VERSION=$VERSION" >>"$GITHUB_ENV"
+
+      - name: Verify macOS 12 deployment target
+        run: |
+          set -euo pipefail
+
+          PLIST_MIN_SYSTEM_VERSION="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$APP_BUNDLE/Contents/Info.plist")"
+          test "$PLIST_MIN_SYSTEM_VERSION" = "$MIN_SYSTEM_VERSION"
+
+          lipo -info "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
+          otool -l "$APP_BUNDLE/Contents/MacOS/$APP_NAME" | awk '/LC_BUILD_VERSION/{printing=1} printing{print} /sdk/{printing=0}'
+          otool -l "$APP_BUNDLE/Contents/MacOS/$APP_NAME" | grep -q "minos $MIN_SYSTEM_VERSION"
 
       - name: Create DMG
         run: |
-          APP_NAME="HotkeyLauncher"
-          VERSION="${GITHUB_REF_NAME#v}"
-          DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+          set -euo pipefail
+
+          DMG_NAME="$APP_NAME-$VERSION.dmg"
           DMG_ROOT="dist/dmg-root"
 
-          rm -rf "$DMG_ROOT"
+          rm -rf "$DMG_ROOT" "$DMG_NAME"
           mkdir -p "$DMG_ROOT"
-          cp -R "dist/$APP_NAME.app" "$DMG_ROOT/$APP_NAME.app"
+          cp -R "$APP_BUNDLE" "$DMG_ROOT/$APP_NAME.app"
           ln -s /Applications "$DMG_ROOT/Applications"
 
           hdiutil create \
@@ -93,12 +132,19 @@ jobs:
             -format UDZO \
             "$DMG_NAME"
 
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HotkeyLauncher-DMG
+          path: HotkeyLauncher-*.dmg
+
       - name: Write update metadata
+        if: github.ref_type == 'tag'
         run: |
-          APP_NAME="HotkeyLauncher"
-          VERSION="${GITHUB_REF_NAME#v}"
-          DMG_NAME="${APP_NAME}-${VERSION}.dmg"
-          cat > latest.json <<JSON
+          set -euo pipefail
+
+          DMG_NAME="$APP_NAME-$VERSION.dmg"
+          cat >latest.json <<JSON
           {
             "version": "$VERSION",
             "tagName": "$GITHUB_REF_NAME",
@@ -109,8 +155,9 @@ jobs:
           JSON
 
       - name: Upload DMG to Release
+        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            *.dmg
+            HotkeyLauncher-*.dmg
             latest.json
