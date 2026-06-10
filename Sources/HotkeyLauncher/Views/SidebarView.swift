@@ -7,15 +7,14 @@ struct SidebarView: View {
         VStack(spacing: 0) {
             List {
                 ForEach(store.shortcuts) { shortcut in
-                    Button {
+                    ShortcutRowView(
+                        shortcut: shortcut,
+                        status: store.status(for: shortcut.id)
+                    )
+                    .onTapGesture {
                         store.selectShortcut(id: shortcut.id)
-                    } label: {
-                        ShortcutRowView(
-                            shortcut: shortcut,
-                            status: store.status(for: shortcut.id)
-                        )
                     }
-                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets())
                     .listRowBackground(selectionBackground(for: shortcut.id))
                 }
             }
@@ -43,15 +42,14 @@ struct SidebarView: View {
 
             Divider()
 
-            Button {
-                store.showSettings()
-            } label: {
-                Label("Settings", systemImage: "gearshape")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.plain)
-            .padding(10)
-            .background(store.isShowingSettings ? Color.accentColor.opacity(0.16) : Color.clear)
+            Label("Settings", systemImage: "gearshape")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(10)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    store.showSettings()
+                }
+                .background(store.isShowingSettings ? Color.accentColor.opacity(0.16) : Color.clear)
         }
     }
 
