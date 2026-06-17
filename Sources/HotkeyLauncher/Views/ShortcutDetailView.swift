@@ -14,13 +14,13 @@ struct ShortcutDetailView: View {
                 header
 
                 VStack(alignment: .leading, spacing: 16) {
-                    detailRow("Name") {
-                        TextField("Name", text: $shortcut.name)
+                    detailRow("名称") {
+                        TextField("名称", text: $shortcut.name)
                             .textFieldStyle(.roundedBorder)
                             .frame(maxWidth: 360)
                     }
 
-                    detailRow("Application") {
+                    detailRow("应用") {
                         HStack(spacing: 10) {
                             Text(shortcut.appPath)
                                 .font(.callout)
@@ -31,21 +31,21 @@ struct ShortcutDetailView: View {
                             Button {
                                 onChooseApplication()
                             } label: {
-                                Label("Choose", systemImage: "folder")
+                                Label("选择", systemImage: "folder")
                             }
                         }
                     }
 
-                    detailRow("Hotkey") {
+                    detailRow("热键") {
                         HotkeyRecorderButton(
                             combination: $shortcut.hotkey,
                             onRecordingChanged: onRecordingChanged
                         )
                     }
 
-                    detailRow("State") {
+                    detailRow("状态") {
                         HStack(spacing: 12) {
-                            Toggle("Enabled", isOn: $shortcut.isEnabled)
+                            Toggle("启用", isOn: $shortcut.isEnabled)
                                 .toggleStyle(.switch)
 
                             StatusBadge(status: status)
@@ -59,7 +59,7 @@ struct ShortcutDetailView: View {
                     Button {
                         onOpen()
                     } label: {
-                        Label("Open Now", systemImage: "arrow.up.forward.app")
+                        Label("立即打开", systemImage: "arrow.up.forward.app")
                     }
 
                     Spacer()

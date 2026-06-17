@@ -5,7 +5,10 @@ MODE="${1:-run}"
 APP_NAME="HotkeyLauncher"
 BUNDLE_ID="com.zjy.hotkeylauncher"
 MIN_SYSTEM_VERSION="12.0"
-VERSION="${HOTKEYLAUNCHER_VERSION:-$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')}"
+VERSION="${HOTKEYLAUNCHER_VERSION:-}"
+if [[ -z "$VERSION" ]]; then
+  VERSION="$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || true)"
+fi
 VERSION="${VERSION:-0.0.0}"
 BUILD_NUMBER="${HOTKEYLAUNCHER_BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}"
 
@@ -37,7 +40,7 @@ cat >"$INFO_PLIST" <<PLIST
 <plist version="1.0">
 <dict>
   <key>CFBundleDevelopmentRegion</key>
-  <string>en</string>
+  <string>zh_CN</string>
   <key>CFBundleExecutable</key>
   <string>$APP_NAME</string>
   <key>CFBundleIdentifier</key>
@@ -47,7 +50,7 @@ cat >"$INFO_PLIST" <<PLIST
   <key>CFBundleName</key>
   <string>$APP_NAME</string>
   <key>CFBundleDisplayName</key>
-  <string>Hotkey Launcher</string>
+  <string>热键启动器</string>
   <key>CFBundleIconFile</key>
   <string>HotkeyLauncher</string>
   <key>CFBundlePackageType</key>
@@ -93,7 +96,7 @@ case "$MODE" in
     pgrep -x "$APP_NAME" >/dev/null
     ;;
   *)
-    echo "usage: $0 [run|--debug|--logs|--telemetry|--verify]" >&2
+    echo "用法：$0 [run|--debug|--logs|--telemetry|--verify]" >&2
     exit 2
     ;;
 esac

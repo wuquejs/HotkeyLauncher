@@ -2,11 +2,14 @@ import AppKit
 
 @main
 struct HotkeyLauncherMain {
+    private static var appDelegate: AppDelegate?
+
     @MainActor
     static func main() {
         let application = NSApplication.shared
-        let appDelegate = AppDelegate()
-        application.delegate = appDelegate
+        let delegate = AppDelegate()
+        appDelegate = delegate
+        application.delegate = delegate
         application.run()
     }
 }

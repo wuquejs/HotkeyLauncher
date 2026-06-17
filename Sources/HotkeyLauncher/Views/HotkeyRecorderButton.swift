@@ -20,7 +20,7 @@ struct HotkeyRecorderButton: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: isRecording ? "record.circle" : "keyboard")
-                Text(isRecording ? "Press shortcut..." : combination.displayName)
+                Text(isRecording ? "请按下快捷键..." : combination.displayName)
                     .font(.system(.body, design: .monospaced))
                     .lineLimit(1)
             }

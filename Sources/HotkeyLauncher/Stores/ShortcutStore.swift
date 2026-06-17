@@ -12,6 +12,7 @@ final class ShortcutStore: ObservableObject {
     @Published var isShowingSettings = false
     @Published var launchAtLogin: Bool
     @Published var opensNewWindowWhenNoVisibleWindows: Bool
+    @Published var showsInDock: Bool
     @Published var alert: AlertItem?
     @Published var latestUpdate: UpdateInfo?
     @Published var isCheckingForUpdates = false
@@ -26,12 +27,14 @@ final class ShortcutStore: ObservableObject {
         self.storage = storage
 
         let savedShortcuts = storage.load()
+        let savedSettings = storage.loadSettings()
         let initialShortcuts = savedShortcuts.isEmpty ? HotkeyShortcut.defaultShortcuts() : savedShortcuts
 
         self.shortcuts = initialShortcuts
         self.selectedID = initialShortcuts.first?.id
         self.launchAtLogin = LoginItemInstaller.isEnabled(bundleURL: Bundle.main.bundleURL)
-        self.opensNewWindowWhenNoVisibleWindows = storage.loadSettings().opensNewWindowWhenNoVisibleWindows
+        self.opensNewWindowWhenNoVisibleWindows = savedSettings.opensNewWindowWhenNoVisibleWindows
+        self.showsInDock = savedSettings.showsInDock
     }
 
     func start() {
@@ -176,12 +179,10 @@ final class ShortcutStore: ObservableObject {
                 return
             }
 
-            Task { @MainActor in
-                self?.alert = AlertItem(
-                    title: "Open Failed",
-                    message: errorMessage
-                )
-            }
+            self?.alert = AlertItem(
+                title: "打开失败",
+                message: errorMessage
+            )
         }
     }
 
@@ -190,12 +191,17 @@ final class ShortcutStore: ObservableObject {
         persistSettings()
     }
 
+    func setShowsInDock(_ enabled: Bool) {
+        showsInDock = enabled
+        persistSettings()
+    }
+
     func setLaunchAtLogin(_ enabled: Bool) {
         do {
             try LoginItemInstaller.setEnabled(enabled, bundleURL: Bundle.main.bundleURL)
             launchAtLogin = enabled
         } catch {
-            alert = AlertItem(title: "Login Item Failed", message: error.localizedDescription)
+            alert = AlertItem(title: "登录项设置失败", message: error.localizedDescription)
             launchAtLogin = LoginItemInstaller.isEnabled(bundleURL: Bundle.main.bundleURL)
         }
     }
@@ -216,9 +222,9 @@ final class ShortcutStore: ObservableObject {
                 settings: currentSettings,
                 to: url
             )
-            alert = AlertItem(title: "Export Complete", message: "Configuration exported to \(url.path).")
+            alert = AlertItem(title: "导出完成", message: "配置已导出到 \(url.path)。")
         } catch {
-            alert = AlertItem(title: "Export Failed", message: error.localizedDescription)
+            alert = AlertItem(title: "导出失败", message: error.localizedDescription)
         }
     }
 
@@ -237,13 +243,14 @@ final class ShortcutStore: ObservableObject {
             let configuration = try storage.importConfiguration(from: url)
             shortcuts = configuration.shortcuts
             opensNewWindowWhenNoVisibleWindows = configuration.settings.opensNewWindowWhenNoVisibleWindows
+            showsInDock = configuration.settings.showsInDock
             selectedID = shortcuts.first?.id
             persist()
             persistSettings()
             refreshRegistrations()
-            alert = AlertItem(title: "Import Complete", message: "Imported \(shortcuts.count) shortcuts.")
+            alert = AlertItem(title: "导入完成", message: "已导入 \(shortcuts.count) 个快捷方式。")
         } catch {
-            alert = AlertItem(title: "Import Failed", message: error.localizedDescription)
+            alert = AlertItem(title: "导入失败", message: error.localizedDescription)
         }
     }
 
@@ -263,20 +270,20 @@ final class ShortcutStore: ObservableObject {
 
                     if AppVersion.compare(AppVersion.current, update.displayVersion) == .orderedAscending {
                         self.alert = AlertItem(
-                            title: "Update Available",
-                            message: "Version \(update.displayVersion) is available. Use Download Update to open the GitHub release."
+                            title: "发现新版本",
+                            message: "版本 \(update.displayVersion) 已发布。点击“下载更新”可打开 GitHub 发布页。"
                         )
                     } else {
                         self.alert = AlertItem(
-                            title: "Up to Date",
-                            message: "HotkeyLauncher \(AppVersion.current) is the latest version."
+                            title: "已是最新版本",
+                            message: "热键启动器 \(AppVersion.current) 已是最新版本。"
                         )
                     }
                 }
             } catch {
                 await MainActor.run {
                     self.isCheckingForUpdates = false
-                    self.alert = AlertItem(title: "Update Check Failed", message: error.localizedDescription)
+                    self.alert = AlertItem(title: "检查更新失败", message: error.localizedDescription)
                 }
             }
         }
@@ -305,8 +312,8 @@ final class ShortcutStore: ObservableObject {
                     self.isDownloadingUpdate = false
                     UpdateChecker.openRelease(latestUpdate)
                     self.alert = AlertItem(
-                        title: "Download Failed",
-                        message: "Opened the GitHub release page instead. \(error.localizedDescription)"
+                        title: "下载失败",
+                        message: "已改为打开 GitHub 发布页。\(error.localizedDescription)"
                     )
                 }
             }
@@ -373,7 +380,7 @@ final class ShortcutStore: ObservableObject {
         do {
             try storage.save(shortcuts)
         } catch {
-            alert = AlertItem(title: "Save Failed", message: error.localizedDescription)
+            alert = AlertItem(title: "保存失败", message: error.localizedDescription)
         }
     }
 
@@ -381,11 +388,14 @@ final class ShortcutStore: ObservableObject {
         do {
             try storage.saveSettings(currentSettings)
         } catch {
-            alert = AlertItem(title: "Save Failed", message: error.localizedDescription)
+            alert = AlertItem(title: "保存失败", message: error.localizedDescription)
         }
     }
 
     private var currentSettings: AppSettings {
-        AppSettings(opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows)
+        AppSettings(
+            opensNewWindowWhenNoVisibleWindows: opensNewWindowWhenNoVisibleWindows,
+            showsInDock: showsInDock
+        )
     }
 }

@@ -50,11 +50,11 @@ enum KeyboardKeyNames {
         UInt32(kVK_ANSI_Comma): ",",
         UInt32(kVK_ANSI_Period): ".",
         UInt32(kVK_ANSI_Slash): "/",
-        UInt32(kVK_Space): "Space",
-        UInt32(kVK_Tab): "Tab",
-        UInt32(kVK_Return): "Return",
-        UInt32(kVK_Delete): "Delete",
-        UInt32(kVK_Escape): "Esc",
+        UInt32(kVK_Space): "空格",
+        UInt32(kVK_Tab): "制表",
+        UInt32(kVK_Return): "回车",
+        UInt32(kVK_Delete): "删除",
+        UInt32(kVK_Escape): "退出键",
         UInt32(kVK_F1): "F1",
         UInt32(kVK_F2): "F2",
         UInt32(kVK_F3): "F3",
@@ -67,18 +67,18 @@ enum KeyboardKeyNames {
         UInt32(kVK_F10): "F10",
         UInt32(kVK_F11): "F11",
         UInt32(kVK_F12): "F12",
-        UInt32(kVK_Home): "Home",
-        UInt32(kVK_End): "End",
-        UInt32(kVK_PageUp): "Page Up",
-        UInt32(kVK_PageDown): "Page Down",
-        UInt32(kVK_LeftArrow): "Left",
-        UInt32(kVK_RightArrow): "Right",
-        UInt32(kVK_UpArrow): "Up",
-        UInt32(kVK_DownArrow): "Down"
+        UInt32(kVK_Home): "行首",
+        UInt32(kVK_End): "行尾",
+        UInt32(kVK_PageUp): "上翻页",
+        UInt32(kVK_PageDown): "下翻页",
+        UInt32(kVK_LeftArrow): "左",
+        UInt32(kVK_RightArrow): "右",
+        UInt32(kVK_UpArrow): "上",
+        UInt32(kVK_DownArrow): "下"
     ]
 
     static func name(for keyCode: UInt32) -> String {
-        names[keyCode] ?? "Key \(keyCode)"
+        names[keyCode] ?? "按键 \(keyCode)"
     }
 
     static func isSupported(keyCode: UInt32) -> Bool {

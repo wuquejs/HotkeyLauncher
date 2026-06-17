@@ -67,7 +67,7 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>CFBundleDevelopmentRegion</key>
-            <string>en</string>
+            <string>zh_CN</string>
             <key>CFBundleExecutable</key>
             <string>$APP_NAME</string>
             <key>CFBundleIdentifier</key>
@@ -77,7 +77,7 @@ jobs:
             <key>CFBundleName</key>
             <string>$APP_NAME</string>
             <key>CFBundleDisplayName</key>
-            <string>Hotkey Launcher</string>
+            <string>热键启动器</string>
             <key>CFBundleIconFile</key>
             <string>HotkeyLauncher</string>
             <key>CFBundlePackageType</key>

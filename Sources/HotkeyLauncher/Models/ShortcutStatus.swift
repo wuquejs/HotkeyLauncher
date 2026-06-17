@@ -11,34 +11,34 @@ enum ShortcutStatus: Equatable {
     var title: String {
         switch self {
         case .registered:
-            return "Active"
+            return "已启用"
         case .disabled:
-            return "Disabled"
+            return "已停用"
         case .missingApplication:
-            return "Missing app"
+            return "应用缺失"
         case .duplicate:
-            return "Duplicate"
+            return "重复"
         case .conflict:
-            return "Conflict"
+            return "冲突"
         case .error:
-            return "Error"
+            return "错误"
         }
     }
 
     var detail: String {
         switch self {
         case .registered:
-            return "Registered and listening"
+            return "已注册，正在监听"
         case .disabled:
-            return "Shortcut is disabled"
+            return "快捷键已停用"
         case .missingApplication:
-            return "Application path does not exist"
+            return "应用路径不存在"
         case .duplicate:
-            return "Another enabled shortcut uses the same keys"
+            return "另一个已启用快捷方式使用了相同按键"
         case .conflict(let code):
-            return "macOS rejected this hotkey, status \(code)"
+            return "macOS 拒绝注册此热键，状态码 \(code)"
         case .error(let code):
-            return "Registration failed, status \(code)"
+            return "注册失败，状态码 \(code)"
         }
     }
 }

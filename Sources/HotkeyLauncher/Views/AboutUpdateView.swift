@@ -11,10 +11,10 @@ struct AboutUpdateView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("HotkeyLauncher")
+                    Text("热键启动器")
                         .font(.headline)
 
-                    Text("Version \(AppVersion.current)")
+                    Text("版本 \(AppVersion.current)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -25,7 +25,7 @@ struct AboutUpdateView: View {
                     onCheckForUpdates()
                 } label: {
                     Label(
-                        isCheckingForUpdates ? "Checking" : "Check",
+                        isCheckingForUpdates ? "检查中" : "检查",
                         systemImage: "arrow.triangle.2.circlepath"
                     )
                 }
@@ -35,7 +35,7 @@ struct AboutUpdateView: View {
                     onDownloadUpdate()
                 } label: {
                     Label(
-                        isDownloadingUpdate ? "Downloading" : "Download",
+                        isDownloadingUpdate ? "下载中" : "下载",
                         systemImage: "square.and.arrow.down"
                     )
                 }
@@ -43,7 +43,7 @@ struct AboutUpdateView: View {
             }
 
             if let latestUpdate {
-                Text("Latest: \(latestUpdate.displayVersion)")
+                Text("最新版本：\(latestUpdate.displayVersion)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

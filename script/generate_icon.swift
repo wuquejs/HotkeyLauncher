@@ -148,5 +148,5 @@ for size in sizes {
     }
 }
 
-print("Iconset generated in " + iconsetDir + "/")
-print("Run: iconutil -c icns " + iconsetDir)
+print("图标集已生成到 " + iconsetDir + "/")
+print("运行：iconutil -c icns " + iconsetDir)

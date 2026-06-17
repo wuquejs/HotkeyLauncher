@@ -26,13 +26,13 @@ struct SidebarView: View {
                 Button {
                     store.addApplicationFromPanel()
                 } label: {
-                    Label("Add", systemImage: "plus")
+                    Label("添加", systemImage: "plus")
                 }
 
                 Button {
                     store.removeSelectedShortcut()
                 } label: {
-                    Label("Remove", systemImage: "trash")
+                    Label("移除", systemImage: "trash")
                 }
                 .disabled(store.selectedShortcut == nil)
 
@@ -42,7 +42,7 @@ struct SidebarView: View {
 
             Divider()
 
-            Label("Settings", systemImage: "gearshape")
+            Label("设置", systemImage: "gearshape")
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
                 .contentShape(Rectangle())

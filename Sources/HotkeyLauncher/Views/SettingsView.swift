@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var launchAtLogin: Bool
     @Binding var opensNewWindowWhenNoVisibleWindows: Bool
+    @Binding var showsInDock: Bool
 
     let latestUpdate: UpdateInfo?
     let isCheckingForUpdates: Bool
@@ -17,42 +18,52 @@ struct SettingsView: View {
             VStack(alignment: .leading, spacing: 24) {
                 header
 
-                settingsSection("General") {
-                    Toggle("Launch at Login", isOn: $launchAtLogin)
+                settingsSection("通用") {
+                    Toggle("登录时启动", isOn: $launchAtLogin)
                         .toggleStyle(.switch)
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Toggle("New window when none are visible", isOn: $opensNewWindowWhenNoVisibleWindows)
+                        Toggle("在程序坞（Dock）中显示", isOn: $showsInDock)
                             .toggleStyle(.switch)
 
-                        Text("Applies to all shortcuts. When the target app is already running with no visible windows, HotkeyLauncher activates it and sends Command+N.")
+                        Text("关闭后应用会保留菜单栏图标，但不会出现在程序坞和应用切换器中。")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Toggle("无可见窗口时新建窗口", isOn: $opensNewWindowWhenNoVisibleWindows)
+                            .toggleStyle(.switch)
+
+                        Text("适用于所有快捷方式。当目标应用已运行但没有可见窗口时，热键启动器会激活它并发送 Command+N。")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
 
-                settingsSection("Configuration") {
+                settingsSection("配置") {
                     HStack(spacing: 10) {
                         Button {
                             onImport()
                         } label: {
-                            Label("Import", systemImage: "square.and.arrow.down")
+                            Label("导入", systemImage: "square.and.arrow.down")
                         }
 
                         Button {
                             onExport()
                         } label: {
-                            Label("Export", systemImage: "square.and.arrow.up")
+                            Label("导出", systemImage: "square.and.arrow.up")
                         }
                     }
 
-                    Text("Import or export shortcuts and global settings as a JSON package.")
+                    Text("将快捷方式和全局设置作为 JSON 配置包导入或导出。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                settingsSection("Updates") {
+                settingsSection("更新") {
                     AboutUpdateView(
                         latestUpdate: latestUpdate,
                         isCheckingForUpdates: isCheckingForUpdates,
@@ -70,11 +81,11 @@ struct SettingsView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Settings")
+            Text("设置")
                 .font(.largeTitle)
                 .fontWeight(.semibold)
 
-            Text("Manage app-level behavior, configuration files, and updates.")
+            Text("管理应用级行为、配置文件和更新。")
                 .foregroundStyle(.secondary)
         }
     }

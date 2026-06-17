@@ -9,14 +9,14 @@ struct EmptyStateView: View {
                 .font(.system(size: 44))
                 .foregroundStyle(.secondary)
 
-            Text("No Shortcuts")
+            Text("暂无快捷方式")
                 .font(.title3)
                 .fontWeight(.semibold)
 
             Button {
                 onAdd()
             } label: {
-                Label("Add Application", systemImage: "plus")
+                Label("添加应用", systemImage: "plus")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

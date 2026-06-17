@@ -4,7 +4,7 @@ struct MenuBarContentView: View {
     @EnvironmentObject private var store: ShortcutStore
 
     var body: some View {
-        Button("Open Hotkey Launcher") {
+        Button("打开热键启动器") {
             WindowActivator.activateSoon()
         }
 
@@ -19,7 +19,7 @@ struct MenuBarContentView: View {
 
         Divider()
 
-        Button("Quit") {
+        Button("退出") {
             NSApp.terminate(nil)
         }
         .onAppear {

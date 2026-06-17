@@ -2,8 +2,40 @@ import Foundation
 
 struct AppSettings: Codable, Equatable {
     var opensNewWindowWhenNoVisibleWindows: Bool
+    var showsInDock: Bool
 
-    static let `default` = AppSettings(opensNewWindowWhenNoVisibleWindows: true)
+    static let `default` = AppSettings(
+        opensNewWindowWhenNoVisibleWindows: true,
+        showsInDock: true
+    )
+
+    init(opensNewWindowWhenNoVisibleWindows: Bool, showsInDock: Bool = true) {
+        self.opensNewWindowWhenNoVisibleWindows = opensNewWindowWhenNoVisibleWindows
+        self.showsInDock = showsInDock
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case opensNewWindowWhenNoVisibleWindows
+        case showsInDock
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.opensNewWindowWhenNoVisibleWindows = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .opensNewWindowWhenNoVisibleWindows
+        ) ?? Self.default.opensNewWindowWhenNoVisibleWindows
+        self.showsInDock = try container.decodeIfPresent(
+            Bool.self,
+            forKey: .showsInDock
+        ) ?? Self.default.showsInDock
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(opensNewWindowWhenNoVisibleWindows, forKey: .opensNewWindowWhenNoVisibleWindows)
+        try container.encode(showsInDock, forKey: .showsInDock)
+    }
 }
 
 struct ShortcutStorage {

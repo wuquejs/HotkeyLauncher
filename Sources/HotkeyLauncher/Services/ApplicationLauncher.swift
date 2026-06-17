@@ -5,7 +5,7 @@ enum ApplicationLauncher {
     static func open(
         _ shortcut: HotkeyShortcut,
         opensNewWindowWhenNoVisibleWindows: Bool,
-        completion: @escaping @Sendable (String?) -> Void
+        completion: @escaping @MainActor @Sendable (String?) -> Void
     ) {
         let appURL = URL(fileURLWithPath: shortcut.appPath)
         let configuration = NSWorkspace.OpenConfiguration()
@@ -16,12 +16,12 @@ enum ApplicationLauncher {
 
         NSWorkspace.shared.openApplication(at: appURL, configuration: configuration) { app, error in
             if let error {
-                completion(error.localizedDescription)
+                complete(error.localizedDescription, completion: completion)
                 return
             }
 
             guard let app else {
-                completion(nil)
+                complete(nil, completion: completion)
                 return
             }
 
@@ -33,7 +33,16 @@ enum ApplicationLauncher {
                 appWasAlreadyRunning: runningApp != nil,
                 hadVisibleWindows: hadVisibleWindows
             )
-            completion(nil)
+            complete(nil, completion: completion)
+        }
+    }
+
+    private static func complete(
+        _ message: String?,
+        completion: @escaping @MainActor @Sendable (String?) -> Void
+    ) {
+        Task { @MainActor in
+            completion(message)
         }
     }
 

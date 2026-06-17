@@ -21,7 +21,7 @@ struct ContentView: View {
             Alert(
                 title: Text(alert.title),
                 message: Text(alert.message),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text("确定"))
             )
         }
         .onAppear {
@@ -40,6 +40,10 @@ struct ContentView: View {
                 opensNewWindowWhenNoVisibleWindows: Binding(
                     get: { store.opensNewWindowWhenNoVisibleWindows },
                     set: { store.setOpensNewWindowWhenNoVisibleWindows($0) }
+                ),
+                showsInDock: Binding(
+                    get: { store.showsInDock },
+                    set: { store.setShowsInDock($0) }
                 ),
                 latestUpdate: store.latestUpdate,
                 isCheckingForUpdates: store.isCheckingForUpdates,
