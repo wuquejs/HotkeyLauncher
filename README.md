@@ -18,7 +18,7 @@
 
 ## 安装
 
-从 [GitHub Releases](https://github.com/zjy4fun/HotkeyLauncher/releases) 下载最新 DMG，打开后将 **HotkeyLauncher.app** 拖入 **Applications**。
+从 [GitHub Releases](https://github.com/wuquejs/HotkeyLauncher/releases) 下载最新 DMG，打开后将 **HotkeyLauncher.app** 拖入 **Applications**。
 
 发布包使用 ad-hoc 签名，没有 Apple Developer ID。因此通过浏览器下载后，Gatekeeper 可能提示无法验证开发者。可以右键点击应用并选择一次 **打开**，也可以清除隔离标记：
 
