@@ -3,10 +3,10 @@ import Foundation
 
 enum UpdateChecker {
     private static let latestInfoURL = URL(
-        string: "https://github.com/zjy4fun/HotkeyLauncher/releases/latest/download/latest.json"
+        string: "https://github.com/wuquejs/HotkeyLauncher/releases/latest/download/latest.json"
     )!
     private static let latestReleaseAPIURL = URL(
-        string: "https://api.github.com/repos/zjy4fun/HotkeyLauncher/releases/latest"
+        string: "https://api.github.com/repos/wuquejs/HotkeyLauncher/releases/latest"
     )!
 
     static func latestUpdate() async throws -> UpdateInfo {
